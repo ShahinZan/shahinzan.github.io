@@ -170,136 +170,132 @@
         <section>
           <h2 class="main-title">The Power of Unit Testing in React</h2>
           <ul>
-            <li>Ensures code reliability and catches bugs early</li>
-            <li>Facilitates refactoring and enhances code quality</li>
-            <li>Improves developer confidence and documentation</li>
+            <li>Enhances code quality</li>
+            <li>Catches bugs early</li>
+            <li>Improves developer confidence</li>
           </ul>
           <h2 class="spacer main-title">Power of Pre Commit Hooks</h2>
           <ul>
             <li>Automates code quality checks before committing</li>
-            <li>Prevents bad commits and ensures code quality</li>
-            <li>Supports various hooks like pre-commit, pre-push, etc.</li>
+            <li>Prevents bad commits</li>
+            <li>Consistency</li>
           </ul>
         </section>
 
         <section>
           <section>
-            <h2 class="main-title">React Testing Library</h2>
+            <h2 class="main-title">React Testing Library <small style="font-size:medium;">(Current Projects)</small></h2>
             <ul>
-              <li>Lightweight and Easy to Use</li>
-              <li>Support for Custom Hooks</li>
+              <li>Lightweight</li>
+              <li>Easy to Use</li>
               <li>
                 Community and Ecosystem
               </li>
-              <li>Cross-Browser Compatibility</li>
               <li>Integration with Jest</li>
+            </ul>
+
+            <h2 class="main-title spacer">Vitest <small style="font-size:medium;">(Feature Projects - TBD)</small></h2>
+            <ul>
+              <li>Fast</li>
+              <li>Parallel Testing</li>
+              <li>... and more</li>
             </ul>
           </section>
           <section>
-            <h2 class="main-title">Simple Unit Test Example</h2>
+            <h2 class="main-title">Unit Test Example</h2>
             <pre><code>
 import { render, screen, fireEvent } from '@testing-library/react';
 import Button from './Button';
 
-test('Button click event', () => {
+it('Button click event', () => {
   render(&lt;Button /&gt;);
   // Simulating the Click Event
   fireEvent.click(screen.getByText('Click Me'));
   // Assertion
   expect(screen.getByRole('button')).toHaveTextContent('Clicked');
+  expect(screen.getByRole('button')).toBeDisabled();
 });
   </code></pre>
+  <small>
+    Note: We cloud use <mark><code>userEvent</code></mark> library for more realistic user interactions.
+  </small>
           </section>
 
           <section>
-            <h2 class="main-title">Complex Unit Test Example</h2>
+            <h2 class="main-title">Integration Test Example</h2>
             <pre><code>
-import { render, screen, waitFor } from '@testing-library/react';
-import UserList from './UserList';
-import { getUsers } from './api';
-// Mocking the API Call (sets up Jest mock the api module)
-jest.mock('./api');
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ApolloProvider } from '@apollo/client';
+import { createMockClient } from 'mock-apollo-client';
+import Button from './Button';
 
-test('displays users after fetch', async () => {
-  // Mock Implementation
-  getUsers.mockResolvedValueOnce([{ id: 1, name: 'John Doe' }]);
-  render(&lt;UserList /&gt;);
-  const userList = await waitFor(() => screen.findByRole('list'));
-  expect(userList).toHaveTextContent('John Doe');
+const mockUserResponse = {
+  data: {
+    user: {
+      name: 'John Doe'
+    }
+  }
+};
+
+const mockClient = createMockClient();
+mockClient.setRequestHandler(
+  YOUR_GRAPHQL_ENDPOINT,
+  () => Promise.resolve(mockUserResponse)
+);
+
+it('Button click event', async () => {
+  render(
+    &lt;ApolloProvider client={mockClient}&gt;
+      &lt;Button /&gt;
+    &lt;/ApolloProvider&gt;
+  );
+
+  fireEvent.click(screen.getByText('Click Me'));
+
+  // Wait for GraphQL request to resolve
+  await screen.findByText('John Doe');
+
+  // Assertion
+  expect(screen.getByText('John Doe')).toBeInTheDocument();
 });
   </code></pre>
-            <p class="main-sub-sub-title">What is <code>jest.mock</code>?</p>
-            <p>
-              It is a Jest function that mocks a module. It replaces the module
-              with a mock implementation.
-            </p>
-            <p class="main-sub-sub-title">
-              What is <code>mockResolvedValueOnce</code>?
-            </p>
-            <p>
-              It is a Jest function that mocks a resolved value for a promise.
-            </p>
+  <small>
+    Note: We could use other libraries like <mark><code>msw</code></mark> for mocking API requests or Jest's <mark><code>mock</code></mark> function for mocking modules.
+  </small>
           </section>
         </section>
 
         <section>
           <section>
-            <h2 class="main-title">Jest's Most Useful Matchers</h2>
+            <h2 class="main-title">Most Useful Matchers & Functions</h2>
             <ul>
-              <li>toBe, toEqual, toMatch, toContain, toBeTruthy, toBeFalsy</li>
-              <li>toContainEqual, toHaveLength, toHaveProperty, toThrow</li>
-              <li>toHaveClass, toHaveAttribute, toHaveTextContent</li>
-              <li>toHaveValue, toBeDisabled, toBeEnabled, toBeVisible</li>
+              <li>Matchers: toBe, toEqual, toBeTruthy, toBeFalsy, toContain</li>
+              <li>Functions: beforeEach, afterEach, describe, test, expect</li>
+              <li>Mock Functions: mock, spyOn, mockResolvedValue, mockRejectedValue</li>
             </ul>
-            <p class="main-sub-sub-title">What is Matcher?</p>
-            <p>
-              It is a Jest function that checks the value of a variable against
-              a known value or pattern.
-            </p>
-          </section>
-          <section>
-            <h2 class="main-title">Jest's Most Useful Functions</h2>
-            <ul>
-              <li>beforeEach, afterEach, beforeAll, afterAll</li>
-              <li>describe, test, it, expect, jest, mock, spyOn</li>
-              <li>mockResolvedValue, mockResolvedValueOnce</li>
-              <li>mockRejectedValue, mockRejectedValueOnce</li>
-            </ul>
+            <p class="main-sub-sub-title">Examples</p>
+            <pre><code>
+// Matchers
+it('adds 1 + 2 to equal 3', () => {
+  expect(1 + 2).toBe(3);
+});
 
-            <p class="main-sub-sub-title">What is Jest function?</p>
-            <p>
-              They are built-in functions provided by Jest to facilitate
-              testing.
-            </p>
+// Functions
+beforeEach(() => {
+  cleanup();
+});
+
+// Mock Functions
+jest.mock('./api');
+          </code></pre>
           </section>
 
           <section>
             <h2 class="main-sub-title">
-              React Testing Library's Most Useful Functions
+              React Testing Library Queries
             </h2>
             <ul>
-              <li>render, screen, fireEvent, waitFor, within</li>
-              <li>getBy, queryBy, findBy, getAllBy, queryAllBy, findAllBy</li>
-              <li>
-                findByText, findByRole, findByLabelText, findByPlaceholderText
-              </li>
-              <li>
-                findByDisplayValue, findByAltText, findByTitle, findByTestId
-              </li>
-            </ul>
-          </section>
-          <section>
-            <h2 class="main-sub-title">
-              React Testing Library's Most Useful Queries
-            </h2>
-            <ul>
-              <li>getByText, queryByText, findByText</li>
-              <li>getByRole, queryByRole, findByRole</li>
-              <li>getByLabelText, queryByLabelText, findByLabelText</li>
-              <li>
-                getByPlaceholderText, queryByPlaceholderText,
-                findByPlaceholderText
-              </li>
+              <li>getByText, queryByText, findByText, etc.</li>
             </ul>
             <p class="main-sub-sub-title">Get vs Query vs FindBy</p>
             <p>
@@ -307,53 +303,6 @@ test('displays users after fetch', async () => {
               functions return null if the element is not found. FindBy
               functions return a promise that resolves when the element is
               found.
-            </p>
-          </section>
-
-          <section>
-            <h2 class="main-sub-title">React Testing Library or Jest?</h2>
-            <ul>
-              <li>Use React Testing Library for UI testing</li>
-              <li>Use Jest for unit testing and snapshot testing</li>
-              <li>Use both for comprehensive testing</li>
-            </ul>
-          </section>
-        </section>
-
-        <section>
-          <section>
-            <h2 class="main-title">Jest Snapshot Testing</h2>
-            <ul>
-              <li>Automatically captures component snapshots</li>
-              <li>Compares snapshots with the previous ones</li>
-              <li>Facilitates visual regression testing</li>
-              <li>Useful for testing UI components and styles</li>
-            </ul>
-          </section>
-          <section>
-            <h2 class="main-sub-title">Snapshot Test Example</h2>
-            <pre><code data-line-numbers="2,7,9">
-import React from 'react';
-import renderer from 'react-test-renderer';
-import UserProfile from './UserProfile';
-
-test('UserProfile renders correctly', () => {
-  // Mock
-  const user = { name: 'John Doe', bio: 'Software Developer' };
-  // For rendering the component into a JSON object
-  const tree = renderer.create(<UserProfile user={user} />).toJSON();
-  // Compare it with the existing snapshot using
-  expect(tree).toMatchSnapshot();
-});
-    </code></pre>
-            <p class="main-sub-sub-title">
-              What is <code>toMatchSnapshot</code>?
-            </p>
-            <p>
-              It is a Jest matcher that captures the rendered output of a
-              component and saves it to a file. It then compares the saved
-              output to the rendered output of the component in subsequent test
-              runs.
             </p>
           </section>
         </section>
@@ -366,122 +315,109 @@ test('UserProfile renders correctly', () => {
               <li>Use descriptive test names</li>
               <li>Keep tests independent and isolated</li>
               <li>Use beforeEach and afterEach hooks</li>
-              <li>Use mock functions and spies</li>
-              <li>Use test coverage reports</li>
+              <li>Mock functions and spies</li>
             </ul>
           </section>
 
           <section>
-            <p class="main-sub-sub-title">beforeEach and afterEach Hooks</p>
-            <p>
-              They are Jest functions that run before and after each test
-              respectively. They are useful for setting up and cleaning up test
-              environments.
-            </p>
-            <p class="main-sub-sub-title">Mock Functions and Spies</p>
-            <p>
-              They are Jest functions that replace real functions with mock
-              implementations. They are useful for testing side effects and
-              interactions.
-            </p>
-            <p class="main-sub-sub-title">Test Coverage Reports</p>
-            <p>
-              They are Jest reports that show the percentage of code covered by
-              tests. They are useful for identifying untested code and improving
-              test coverage.
-            </p>
-          </section>
+            <h2 class="main-sub-title">Folder Structure <small style="font-size:medium;">(Current Projects)</small></h2>
+            <pre><code>
++ src
+  + components
+    + Button
+      - Button.tsx
+      - Button.test.tsx
+    + Header
+      - Header.tsx
+      - Header.test.tsx
+    + pages
+      - Home.tsx
+      - Home.test.tsx
+    ...
+          </code></pre>
+        </section>
+        
+
+        <section>
+            <h2 class="main-sub-title">Code Coverage Report</h2>
+            <pre><code>
+|File                    |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |
+|------------------------|----------|----------|----------|----------|-------------------|
+|All files               |    88.89 |        0 |       75 |    88.24 |                   |
+| src                    |      100 |      100 |      100 |      100 |                   |
+|  App.tsx               |      100 |      100 |      100 |      100 |                   |
+| src/Components/Button  |       50 |        0 |    33.33 |       50 |                   |
+|  Button.tsx            |       50 |        0 |    33.33 |       50 |             14,16 |
+| src/Components/Header  |      100 |      100 |      100 |      100 |                   |
+|  Header.tsx            |      100 |      100 |      100 |      100 |                   |
+| src/Components/pages   |      100 |      100 |      100 |      100 |                   |
+|  Home.tsx              |      100 |      100 |      100 |      100 |                   |
+| src/Components/GqlAPI  |      100 |      100 |       80 |      100 |                   |
+|  GqlAPI.tsx            |      100 |      100 |       80 |      100 |                   |
+|------------------------|----------|----------|----------|----------|-------------------|
+            </code></pre>
+            <small>
+              Stmts: Statements, Branch: Branches, Funcs: Functions, Lines: Lines
+            </small>
+          </section>             
+
 
           <section>
-            <h2 class="main-sub-title">Unit Test Writing Patterns</h2>
-            <ul>
-              <li>Arrange, Act, Assert (AAA) pattern</li>
-              <li>Given, When, Then (GWT) pattern</li>
-              <li>Setup, Exercise, Verify, Teardown (SEVT) pattern</li>
-              <li>Arrange, Act, Assert, Cleanup (AAAC) pattern</li>
-            </ul>
-            <p class="main-sub-sub-title">What is Arrange, Act, Assert</p>
+            <h2 class="main-sub-title">Unit Test Writing Patterns <small style="font-size:medium;">(Default for Current Projects)</small></h2>
+            <p class="main-sub-sub-title">Arrange, Act, Assert</p>
             <p>Arrange: Set up the test environment.</p>
             <p>Act: Perform the test.</p>
             <p>Assert: Verify the test results.</p>
+            <p class="main-sub-sub-title">Other Patterns</p>
+            <ul>
+              <li>Given, When, Then (GWT) pattern</li>
+              <li>Setup, Exercise, Verify, Teardown (SEVT) pattern</li>
+              <li>Arrange, Act, Assert, Cleanup (AAAC) pattern</li>
+              <li>... and more</li>
+            </ul>
+
           </section>
         </section>
 
         <section>
-          <section>
             <h2 class="main-sub-title">Function tests vs UI tests</h2>
             <p class="main-sub-sub-title">Function Tests:</p>
-            <ul><li>Test the internal logic and behavior of code functions.</li><li>Focus on code-level testing.</li><li>Ensure specific functions work correctly under different conditions.</li><li>Help with debugging and verifying individual components.</li></ul>
+            <pre><code>
+// Test the functionality of a specific function or method.
+
+it('calculates the upcoming date', () => {
+  const date = calculateNextDate(new Date('2024-02-29'));
+  expect(date).toEqual(new Date('2024-03-01'));
+});
+            </code></pre>
             <p class="main-sub-sub-title">UI Tests:</p>
-            <ul><li>Test the user interface elements and interactions.</li><li>Focus on interface-level testing.</li><li>Validate visual appearance and interaction of UI elements.</li><li>Ensure the UI is intuitive and responsive for users.</li></ul>
-          </section>
-          <section>
-            <h2 class="main-sub-title">Write failing tests</h2>
-            <p>To craft robust unit tests, begin by crafting a failing test case. Ensuring that it fails for the correct reasons is crucial. Simply having a passing test isn't sufficient; it's imperative to witness our tests fail as well. This ensures that our testing suite effectively captures the intended behavior and accurately identifies discrepancies.</p>
-          </section>
+            <pre><code>
+// Test the user interface and user interactions.
+
+it('Popup is displayed when the button is clicked', () => {
+  render(&lt;Button /&gt;);
+  fireEvent.click(screen.getByText('Open Popup'));
+  expect(screen.getByText('Popup Content')).toBeInTheDocument();
+});
+            </code></pre>
         </section>
 
         <section>
-          <section>
             <h2 class="main-sub-title">What is Husky</h2>
             <ul>
-              <li>Git hooks made easy</li>
               <li>Runs custom scripts before committing code</li>
-              <li>Prevents bad commits and ensures code quality</li>
-              <li>Supports various hooks like pre-commit, pre-push, etc.</li>
             </ul>
-          </section>
-
-          <section>
-            <h2 class="main-title">Husky Pre-commit Example</h2>
             <pre><code>
-"husky": {
-    "hooks": {
-        "pre-commit": "eslint . && prettier --check ."
-    }
-}
-                        </code></pre>
-            <p>Ensure code quality with automated checks.</p>
-          </section>
+git commit -m "Add new feature"
 
-          <section>
-            <h2 class="main-sub-title">What is Lint-staged?</h2>
-            <ul>
-              <li>Runs linters on staged files</li>
-              <li>Prevents bad commits and ensures code quality</li>
-              <li>Supports various linters like ESLint, Prettier, etc.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 class="main-sub-title">Lint-staged Example</h2>
-            <pre><code>
-"lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint",
-    "*.{json,md,css,scss,html}": "prettier --write"
-}
-                        </code></pre>
-          </section>
-        </section>
-
-        <section>
-          <h2 class="main-sub-title">Bonus!</h2>
-          <p>
-            What are your thoughts on using Artificial Intelligence for Unit
-            Testing?
-          </p>
-          <p>Let's discuss! 🤖</p>
-
-          <figure>
-            <img
-              src="./chat-gpt.webp"
-              alt="ChatGPT 4.0"
-              width="500"
-              height="300"
-            />
-            <figcaption id="figcaption">Source: ChatGPT 4.0</figcaption>
-          </figure>
-        </section>
+husky > pre-commit
+  eslint --fix
+  prettier --write 
+  yarn test
+  ✖ lint-staged: src/App.test.tsx
+  ...
+            </code></pre>
+</section>
 
         <section>
           <h2 class="main-sub-title">Thank You!</h2>
@@ -502,6 +438,12 @@ test('UserProfile renders correctly', () => {
             </li>
             <li>
               <a href="https://typicode.github.io/husky/">Husky</a>
+            </li>
+            <li>
+              Slack Channel: #taskforce-unit-tests
+            </li>
+            <li>
+              Link to the <a href="https://github.com/prenuvo/customer-online-booking/pull/282">PR</a>
             </li>
           </ul>
         </section>
